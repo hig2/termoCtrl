@@ -26,6 +26,13 @@ int buferComand[3]={
   0  // crc
 };
 
+void serialWatcher(int timer){
+  static unsigned long t = 0;
+  if(millis() - t > timer){
+    serialMaster();
+    t = millis();
+  }
+}
 
 void serialMaster(){
   static int lengthBuferComand = sizeof(buferComand) / sizeof(buferComand[0]);
@@ -33,14 +40,21 @@ void serialMaster(){
   unsigned long crc = 0;
   int lengthGlobalStateBufer = 12;
   int globalStateBufer[lengthGlobalStateBufer];
-   if(uart.parsePacket((int*)globalStateBufer)){
+   if(parsePacket((int*)globalStateBufer)){
     for(byte i = 0; i < lengthGlobalStateBufer - 1; i++){ // расчет CRC
       crc += globalStateBufer[i];
     }
 
     if(globalStateBufer[lengthGlobalStateBufer - 1] == crc){ //проверка контрольной суммы пройдена
       //записываем результаты в необходимые перменные
-    
+
+      outArray[0] = globalStateBufer[7]; // ошибка
+      outArray[1] = globalStateBufer[0]; // статус
+      outArray[2] = globalStateBufer[1]; // температура топлива
+      outArray[3] = themp;
+      outArray[4] = needThemp;
+      
+      
      //сразу же формируем ответ на отправку
      crc = 0; //очищаем преведущую CRC
      for(byte i = 0; i < lengthBuferComand; i++){ // расчет CRC
@@ -62,75 +76,43 @@ void serialMaster(){
   }
 }
 
-/*
-
-int normalStatus(int inInt){
-
-  if(errorStatus == 0){ // проверка на статус ошибки, если нет ставит нормальное значение
-    if(inInt == 0){
-      return 1; // ожидание
-    }else if(inInt == 1){
-      return 2; // росжиг
-    }else if(inInt == 2){
-      return 3; // горение
-    }else{
-      return 1; 
-    }
-   }else{
-      return 4; //статус аварии
-   }
-}
-
-
-
-*/
-
-/*
 boolean parsePacket(int *intArray) {
-    if (Serial.available()) {
+    if (uart.available()) {
         uint32_t timeoutTime = millis();
         int value = 0;
         byte index = 0;
         boolean parseStart = 0;
 
         while (millis() - timeoutTime < 100) {
-            if (Serial.available()) {
+            if (uart.available()) {
                 timeoutTime = millis();
-                if (Serial.peek() == '$') {
+                if (uart.peek() == '$') {
                     parseStart = true;
-                    Serial.read();
+                    uart.read();
                     continue;
                 }
                 if (parseStart) {
-                    if (Serial.peek() == ' ') {
+                    if (uart.peek() == ' ') {
                         intArray[index] = value / 10;
                         value = 0;
                         index++;
-                        Serial.read();
+                        uart.read();
                         continue;
                     }
-                    if (Serial.peek() == ';') {
+                    if (uart.peek() == ';') {
                         intArray[index] = value / 10;
-                        Serial.read();
+                        uart.read();
                         return true;
                     }
-                    value += Serial.read() - '0';
+                    value += uart.read() - '0';
                     value *= 10;
                 }
                 else
                 {
-                    Serial.read(); //возможно не будет работать нужна очистка 
+                    uart.clear(); //возможно не будет работать нужна очистка 
                 }
             }
         }
     }
     return false;
-}
-
-*/
-
-
-
-void updateStateGlobal(){
-
 }

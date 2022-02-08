@@ -3,6 +3,8 @@
 int inArray[1];
 int outArray[5];
 
+unsigned long sessionTimer = 0;
+
 void init_I2C(){
   Wire.begin(0x01); // инициализируем устройсво как slave
   Wire.onRequest(write_I2C_slave);
@@ -54,6 +56,7 @@ bool read_I2C_slave(){
 
     if(acc == crc){
       for(int i = 0; i < lenInArray; i++){
+        uploadSessionTimer();
         inArray[i] = bufferInArray[i];
         uart.print(bufferInArray[i]);
         uart.print(" ");
@@ -73,4 +76,21 @@ void i2cArrayInUpdater(){
   if(needThemp > 80){
     needThemp = 80;
   };
+}
+
+void i2cSesionWtacher(int timer){
+  if((millis() - sessionTimer) > timer){
+    sessionTimer = millis();
+    espReset(4);
+  }
+}
+
+void uploadSessionTimer(){
+  sessionTimer = millis();
+}
+
+void espReset(int pin){
+  digitalWrite(pin, LOW);
+  delay(500);
+  digitalWrite(pin, HIGH); 
 }

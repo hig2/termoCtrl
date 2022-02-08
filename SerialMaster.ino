@@ -20,6 +20,9 @@ int globalState[12]={ // необходим для мониторинга
 
 */
 
+
+
+
 int buferComand[3]={
   0, // команда на переход в состояние
   85, // поддерживаемая температура
@@ -29,8 +32,8 @@ int buferComand[3]={
 void serialWatcher(int timer){
   static unsigned long t = 0;
   if(millis() - t > timer){
-    serialMaster();
     t = millis();
+    serialMaster();
   }
 }
 
@@ -51,8 +54,8 @@ void serialMaster(){
       outArray[0] = globalStateBufer[7]; // ошибка
       outArray[1] = globalStateBufer[0]; // статус
       outArray[2] = globalStateBufer[1]; // температура топлива
-      outArray[3] = themp;
-      outArray[4] = needThemp;
+      outArray[3] = themp;   // температура датчика
+      outArray[4] = needThemp; // удерживаемая температура термастата
       
       
      //сразу же формируем ответ на отправку

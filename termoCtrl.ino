@@ -1,9 +1,9 @@
-
+ 
 //$1 7 0 0 0 1 0 0 85 102 1 197;
 #include "avdweb_AnalogReadFast.h" 
 #include <Wire.h>
 #include "GyverWDT.h"
-int needThemp = 55;
+int needThemp = 0;
 int themp = 0;
 
 
@@ -21,5 +21,6 @@ void loop(){
   termostat();
   serialMaster();
   i2cSesionWtacher(5000);
+  i2cArrayInUpdater();
   Watchdog.reset();
 }

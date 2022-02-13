@@ -1,6 +1,6 @@
 //$1 14 0 0 0 1 0 0 90 101 1 208;
 
-int inArray[1];
+int inArray[1] = {55};
 int outArray[5];
 
 unsigned long sessionTimer = 0;
@@ -57,6 +57,7 @@ bool read_I2C_slave(){
     if(acc == crc){
       for(int i = 0; i < lenInArray; i++){
         uploadSessionTimer();
+        
         inArray[i] = bufferInArray[i];
         uart.print(bufferInArray[i]);
         uart.print(" ");
@@ -72,7 +73,7 @@ bool read_I2C_slave(){
 }
 
 void i2cArrayInUpdater(){
-  int needThemp = inArray[0];
+  needThemp = inArray[0];
   if(needThemp > 80){
     needThemp = 80;
   };
